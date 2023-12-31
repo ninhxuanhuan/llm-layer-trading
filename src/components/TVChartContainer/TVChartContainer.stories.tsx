@@ -18,8 +18,9 @@ export const OraiUsdtChart: Story = (args: TVChartContainerProsp) => (
 OraiUsdtChart.args = {
   theme: "dark",
   currentPair: {
-    symbol: "ORAI/USDT",
-    info: "orai-orai12hzjxfh77wl572gdzct2fxv2arxcwh6gykc7qh"
+    symbol: "USDT/USD",
+    //info: "orai-orai12hzjxfh77wl572gdzct2fxv2arxcwh6gykc7qh"
+    tokenId:""
   }
 };
 
@@ -32,6 +33,7 @@ OraiAtomChart.args = {
   theme: "dark",
   currentPair: {
     symbol: "ORAI/ATOM",
-    info: "orai-ibc/A2E2EEC9057A4A1C2C0A6A4C78B0239118DF5F278830F50B4A6BDD7A66506B78"
+    //info: "orai-ibc/A2E2EEC9057A4A1C2C0A6A4C78B0239118DF5F278830F50B4A6BDD7A66506B78"
+    tokenId:""
   }
 };

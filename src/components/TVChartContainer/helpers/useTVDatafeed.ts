@@ -11,7 +11,8 @@ import { SUPPORTED_RESOLUTIONS } from "./constants";
 
 export type PairToken = {
   symbol: string;
-  info: string;
+  //info: string;
+  tokenId: string;
 };
 
 const configurationData = {
@@ -26,12 +27,11 @@ type Props = {
   dataProvider?: TVDataProvider;
   currentPair: PairToken;
   setChartDataLength: any;
-  pairsChart: PairToken[]
 };
 
-export const EXCHANGE_NAME = "OraiDEX";
+export const EXCHANGE_NAME = "LLM Layer";
 
-export default function useTVDatafeed({ dataProvider, currentPair, setChartDataLength, pairsChart }: Props) {
+export default function useTVDatafeed({ dataProvider, currentPair, setChartDataLength }: Props) {
   const intervalRef = useRef<ReturnType<typeof setInterval> | undefined>();
   const resetCacheRef = useRef<() => void | undefined>();
   const activeTicker = useRef<string | undefined>();
@@ -96,14 +96,13 @@ export default function useTVDatafeed({ dataProvider, currentPair, setChartDataL
               onErrorCallback("Invalid ticker!");
               return;
             }
-            const pair = pairsChart.find((p) => p.symbol === symbolInfo.ticker);
 
             const bars = await tvDataProvider.current?.getBars(
-              pair?.info,
               ticker,
               resolution,
               periodParams,
-              shouldRefetchBars.current
+              shouldRefetchBars.current,
+              currentPair.tokenId
             );
 
             if (periodParams.firstDataRequest) {
@@ -142,5 +141,5 @@ export default function useTVDatafeed({ dataProvider, currentPair, setChartDataL
         }
       }
     };
-  }, [currentPair.info]);
+  }, [currentPair.tokenId]);
 }

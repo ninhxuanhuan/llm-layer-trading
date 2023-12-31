@@ -1,7 +1,9 @@
-import { PeriodParams } from "../charting_library";
 import { Bar } from "./types";
 import Axios from "axios";
-import { throttleAdapterEnhancer, retryAdapterEnhancer } from "axios-extensions";
+import {
+  throttleAdapterEnhancer,
+  retryAdapterEnhancer,
+} from "axios-extensions";
 
 const AXIOS_TIMEOUT = 10000;
 const AXIOS_THROTTLE_THRESHOLD = 2000;
@@ -14,26 +16,50 @@ const axios = Axios.create({
       threshold: AXIOS_THROTTLE_THRESHOLD,
     })
   ),
-  baseURL: "https://api.oraidex.io",
+  baseURL: "http://18.219.50.243:3005",
 });
 
-export const getTokenChartPrice = async (
-  pair: string,
-  periodParams: PeriodParams,
-  resolution: string
-): Promise<Bar[]> => {
+const convertData = (data) => {
+  const result = data.map((item) => {
+    return {
+      volume: 7705817802,
+      time: new Date(item[0]).getTime()/1000,
+      open: parseInt(item[1]) / 1000000000,
+      high: parseInt(item[2]) / 1000000000,
+      low: parseInt(item[3]) / 1000000000,
+      close: parseInt(item[4]) / 1000000000,
+    };
+  });
+  return result;
+};
+
+interface IParams {
+  tokenId: string,
+  duringPeriod?: number,
+  resolution?: string
+}
+
+export const getTokenChartPrice = async ({
+  tokenId,
+  duringPeriod = 30,
+  resolution = "240",
+}: IParams): Promise<Bar[]> => {
+  const hours =  parseInt(resolution) / 60 ;
+  let chartTime = "";
+  if (hours == 24) chartTime = "1 day";
+  else chartTime = parseInt(resolution) / 60 + " hours";
   try {
-    const res = await axios.get("/v1/candles", {
+    const res = await axios.get("/gecko/ohlc", {
       params: {
-        pair,
-        startTime: periodParams.from,
-        endTime: periodParams.to,
-        tf: +resolution * 60,
+        id: tokenId,
+        duringPeriod,
+        chartTime,
       },
     });
-    return res.data;
+    return convertData(res.data.chartDatas);
   } catch (e) {
     console.error("GetTokenChartPrice", e);
     return [];
   }
 };
+//http://18.219.50.243:3005/gecko/ohlc?id=tether-pulsechain&duringPeriod=4&chartTime=4%20hours
