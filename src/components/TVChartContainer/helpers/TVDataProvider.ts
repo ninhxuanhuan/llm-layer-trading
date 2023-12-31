@@ -36,17 +36,17 @@ export class TVDataProvider {
   }
 
   async getTokenHistoryBars(
-    pair: string,
     ticker: string,
     periodParams: PeriodParams,
     shouldRefetchBars: boolean,
-    resolution: string
+    resolution: string,
+    tokenId: string
   ): Promise<Bar[]> {
     const barsInfo = this.barsInfo;
     const period = SUPPORTED_RESOLUTIONS[resolution];
     if (!barsInfo.data.length || barsInfo.ticker !== ticker || barsInfo.period !== period || shouldRefetchBars) {
       try {
-        const bars = await getTokenChartPrice(pair, periodParams, resolution);
+        const bars = await getTokenChartPrice({tokenId, resolution});
         const filledBars = fillBarGaps(bars, CHART_PERIODS[period]);
         const currentCandleTime = getCurrentCandleTime(period);
         const lastCandleTime = currentCandleTime - CHART_PERIODS[period];
@@ -83,14 +83,14 @@ export class TVDataProvider {
   }
 
   async getBars(
-    pair: string,
     ticker: string,
     resolution: string,
     periodParams: PeriodParams,
-    shouldRefetchBars: boolean
+    shouldRefetchBars: boolean,
+    tokenId: string
   ) {
     try {
-      const bars = await this.getTokenHistoryBars(pair, ticker, periodParams, shouldRefetchBars, resolution);
+      const bars = await this.getTokenHistoryBars(ticker, periodParams, shouldRefetchBars, resolution, tokenId);
       return bars.sort((a, b) => a.time - b.time).map(formatTimeInBarToMs);
     } catch (e) {
       console.error("getBars", e);
@@ -98,31 +98,22 @@ export class TVDataProvider {
     }
   }
 
-  async getLastBar(pair: string, ticker: string, period: string, resolution: string) {
-    if (!ticker || !period || !pair) {
+  async getLastBar(ticker: string, period: string, resolution: string, tokenId:string) {
+    if (!ticker || !period ) {
       throw new Error("Invalid input. Ticker, period, and chainId are required parameters.");
     }
-    const prices = await getTokenChartPrice(
-      pair,
-      {
-        from: getUTCTimestamp() - CHART_PERIODS[period],
-        to: getUTCTimestamp(),
-        countBack: Number(period),
-        firstDataRequest: false
-      },
-      resolution
-    );
+    const prices = await getTokenChartPrice({tokenId, resolution});
 
     this.lastBar = prices[prices.length - 1];
     return this.lastBar;
   }
 
-  async getLiveBar(pair: string, ticker: string, resolution: string) {
+  async getLiveBar(ticker: string, resolution: string, tokenId:string) {
     const period = SUPPORTED_RESOLUTIONS[resolution];
-    if (!ticker || !period || !pair) return;
+    if (!ticker || !period ) return;
 
     try {
-      this.lastBar = await this.getLastBar(pair, ticker, period, resolution);
+      this.lastBar = await this.getLastBar(ticker, period, resolution, tokenId);
       this.lastBar = formatTimeInBarToMs(this.lastBar);
     } catch (error) {
       console.error(error);

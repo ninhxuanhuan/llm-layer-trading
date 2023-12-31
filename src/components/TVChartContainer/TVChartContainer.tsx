@@ -31,13 +31,11 @@ export type TVChartContainerProsp = {
   libraryUrl?: string;
   theme: "dark" | "light";
   currentPair: PairToken;
-  pairsChart: PairToken[];
 };
 export default function TVChartContainer({
   libraryUrl = DEFAULT_LIBRARY_URL,
   theme,
   currentPair,
-  pairsChart
 }: TVChartContainerProsp) {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const tvWidgetRef = useRef<IChartingLibraryWidget | null>(null);
@@ -47,7 +45,6 @@ export default function TVChartContainer({
     dataProvider: new TVDataProvider(),
     currentPair,
     setChartDataLength,
-    pairsChart
   });
   const isMobile = useMedia("(max-width: 550px)");
   const [chartReady, setChartReady] = useState(false);
@@ -104,11 +101,10 @@ export default function TVChartContainer({
         min_bar_spacing: 15
       },
       time_frames: [
-        { text: "6m", resolution: "6h" as ResolutionString, description: "6 Months" },
-        { text: "1m", resolution: "1h" as ResolutionString, description: "1 Month" },
-        { text: "2w", resolution: "1h" as ResolutionString, description: "2 Weeks" },
-        { text: "1w", resolution: "1h" as ResolutionString, description: "1 Week" },
-        { text: "1d", resolution: "15" as ResolutionString, description: "1 Day" }
+        { text: "1m", resolution: "4h" as ResolutionString, description: "1 Month" },
+        // { text: "2w", resolution: "4h" as ResolutionString, description: "2 Weeks" },
+        // { text: "1w", resolution: "4h" as ResolutionString, description: "1 Week" },
+        // { text: "1d", resolution: "4h" as ResolutionString, description: "1 Day" }
       ]
     };
     if (isMobile) widgetOptions.disabled_features.push(...disabledFeaturesOnMobile);
